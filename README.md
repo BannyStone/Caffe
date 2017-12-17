@@ -166,6 +166,9 @@ Framework development discussions and thorough bug reports are collected on [Iss
 
 Happy brewing!
 
+## Some Plans
+Going to support ND convolution networks(ND_Conv, ND_BN, ND_Pooling)
+
 ## License and Citation
 
 Caffe is released under the [BSD 2-Clause license](https://github.com/BVLC/caffe/blob/master/LICENSE).
