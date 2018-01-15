@@ -24,7 +24,7 @@ caffe_option(BUILD_matlab "Build Matlab wrapper" OFF IF UNIX OR APPLE)
 caffe_option(BUILD_docs   "Build documentation" ON IF UNIX OR APPLE)
 caffe_option(BUILD_python_layer "Build the Caffe python layer" ON)
 
-caffe_option(USE_MPI "whether to include MPI parallelization" OFF) #Used to switch on and off MPI
+caffe_option(USE_MPI "whether to include MPI parallelization" ON) #Used to switch on and off MPI
 
 # ---[ Dependencies
 include(cmake/Dependencies.cmake)

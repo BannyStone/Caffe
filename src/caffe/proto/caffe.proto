@@ -278,7 +278,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 163 (last added: batch_reduction_param)
+// LayerParameter next available layer-specific ID: 165 (last added: ndp_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -367,6 +367,8 @@ message LayerParameter {
   optional ScaleParameter scale_param = 160;
   optional BiasParameter bias_param = 161;
   optional BatchReductionParameter batch_reduction_param = 162;
+  optional BatchNormParameter batch_norm_param = 163;
+  optional NDPParameter ndp_param = 164;
 }
 
 // Message that stores parameters used to apply transformation
@@ -1352,6 +1354,58 @@ message BatchReductionParameter {
     repeated int32 level = 1;
     optional ReductionParameter reduction_param = 2;
     optional bool pos = 3 [default = false];
+}
+
+message BatchNormParameter {
+  // If false, normalization is performed over the current mini-batch
+  // and global statistics are accumulated (but not yet used) by a moving
+  // average.
+  // If true, those accumulated mean and variance values are used for the
+  // normalization.
+  // By default, it is set to false when the network is in the training
+  // phase and true when the network is in the testing phase.
+  optional bool use_global_stats = 1;
+  // What fraction of the moving average remains each iteration?
+  // Smaller values make the moving average decay faster, giving more
+  // weight to the recent values.
+  // Each iteration updates the moving average @f$S_{t-1}@f$ with the
+  // current mean @f$ Y_t @f$ by
+  // @f$ S_t = (1-\beta)Y_t + \beta \cdot S_{t-1} @f$, where @f$ \beta @f$
+  // is the moving_average_fraction parameter.
+  optional float moving_average_fraction = 2 [default = .999];
+  // Small value to add to the variance estimate so that we don't divide by
+  // zero.
+  optional float eps = 3 [default = 1e-5];
+}
+
+message NDPParameter {
+  enum PoolMethod {
+    MAX = 0;
+    AVE = 1;
+    STOCHASTIC = 2;
+  }
+  optional PoolMethod pool = 1 [default = MAX]; // The pooling method
+  // Pad, kernel size, and stride are all given as a single value for equal
+  // dimensions in all spatial dimensions, or once per spatial dimension.
+  repeated uint32 pad = 2; // The padding size defaults to 0
+  repeated uint32 kernel_size = 3; // The kernel size (square)
+  repeated uint32 stride = 4; // defaults to 1
+  
+  // For 2D pooling only, the *_h and *_w versions may also be used to
+  // specify both spatial dimensions.
+  optional uint32 pad_h = 5 [default = 0]; // The padding height (2D only)
+  optional uint32 pad_w = 6 [default = 0]; // The padding width (2D only)
+  optional uint32 kernel_h = 7; // The kernel height (2D only)
+  optional uint32 kernel_w = 8; // The kernel width (2D only)
+  optional uint32 stride_h = 9; // The stride height (2D only)
+  optional uint32 stride_w = 10; // The stride width (2D only)
+  // If global_pooling then it will pool over the size of the bottom by doing
+  // kernel_h = bottom->height and kernel_w = bottom->width
+  optional bool global_pooling = 11 [default = false];
+  // The axis to interpret as "channels" when performing pooling.
+  // Preceding dimensions are treated as independent inputs;
+  // succeeding dimensions are treated as "spatial".
+  optional int32 axis = 12 [default = 1];
 }
 
 message MemoryOptimizationParameter {
