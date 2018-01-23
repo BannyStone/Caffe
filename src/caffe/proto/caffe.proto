@@ -278,7 +278,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 165 (last added: ndp_param)
+// LayerParameter next available layer-specific ID: 166 (last added: video4d_data_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -369,6 +369,7 @@ message LayerParameter {
   optional BatchReductionParameter batch_reduction_param = 162;
   optional BatchNormParameter batch_norm_param = 163;
   optional NDPParameter ndp_param = 164;
+  optional Video4dDataParameter video4d_data_param = 165;
 }
 
 // Message that stores parameters used to apply transformation
@@ -746,6 +747,38 @@ message VideoDataParameter{
   optional bool grayscale = 18 [default = false];
 
 }
+
+message Video4dDataParameter{
+  // Specify the data source.
+  optional string source = 1;
+  // Specify the batch size.
+  optional uint32 batch_size = 2;
+  // Whether or not ImageLayer should shuffle the list of files at every epoch.
+  optional bool shuffle = 3 [default = false];
+  // It will also resize images if new_height or new_width are not zero.
+  optional uint32 new_height = 4 [default = 256];
+  optional uint32 new_width = 5 [default = 340];
+  optional uint32 new_length = 6 [default = 1];
+  optional uint32 num_segments = 7 [default = 1];
+  enum Modality {
+    RGB = 0;
+    FLOW = 1; // unsupported yet
+  }
+  optional Modality modality = 8 [default = FLOW];
+  // share the random offset per segment
+  optional bool offset_share = 14 [default = false];
+  // the name pattern for frame images,
+  // for RGB modality it is default to "img_%04d.jpg", for FLOW "flow_x_%04d" and "flow_y_%04d"
+  optional string name_pattern = 9;
+  // The type of input
+  optional bool encoded = 10 [default = false];
+  optional bool rand_step = 11 [default = false];
+  // Sampling rate
+  optional uint32 step = 12 [default = 1];
+  // The type of input
+  optional bool grayscale = 13 [default = false];
+}
+
 message InfogainLossParameter {
   // Specify the infogain matrix source.
   optional string source = 1;
