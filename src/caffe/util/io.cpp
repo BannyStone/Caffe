@@ -549,7 +549,7 @@ bool ReadSegmentRGBToDatum_4D(const string& filename, const int label,
 
   if (is_color) {
     for (int c = 0; c < num_channels; ++ c) {
-      for (int seg_id = 0, seg_id < num_segments; ++ seg_id) {
+      for (int seg_id = 0; seg_id < num_segments; ++ seg_id) {
         for (int file_id = 0; file_id < length; ++ file_id) {
           for (int h = 0; h < img_height; ++ h) {
             for (int w = 0; w < img_width; ++ w) {
@@ -561,7 +561,7 @@ bool ReadSegmentRGBToDatum_4D(const string& filename, const int label,
       }
     }
   } else {
-    for (int seg_id = 0, seg_id < num_segments; ++ seg_id) {
+    for (int seg_id = 0; seg_id < num_segments; ++ seg_id) {
       for (int file_id = 0; file_id < length; ++ file_id) {
         for (int h = 0; h < img_height; ++ h) {
           for (int w = 0; w < img_width; ++ w) {

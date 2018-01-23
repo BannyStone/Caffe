@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "caffe/data_layers.hpp"
+#include "caffe/layers/video4d_data_layer.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
@@ -131,7 +131,7 @@ void Video4dDataLayer<Dtype>::InternalThreadEntry() {
 	const int new_length = video4d_data_param.new_length();
 	const int num_segments = video4d_data_param.num_segments();
 	const int lines_size = lines_.size();
-	const int step = video4d_data_param.step();
+	int step = video4d_data_param.step(); // adjust step according to the size of frame sequence
 	const bool rand_step = video4d_data_param.rand_step();
 	const bool offset_share = video4d_data_param.offset_share();
 
