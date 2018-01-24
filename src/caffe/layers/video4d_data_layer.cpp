@@ -155,7 +155,7 @@ void Video4dDataLayer<Dtype>::InternalThreadEntry() {
 			if (step == 0)
 				step = 1;
 		}
-		CHECK(step >= 0);
+		CHECK_GT(step, 0);
 		// set offset shared between different segments.
 		int share_offset;
 		if (average_duration >= (new_length - 1) * step + 1)
