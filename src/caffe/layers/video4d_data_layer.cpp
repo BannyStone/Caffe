@@ -74,14 +74,20 @@ void Video4dDataLayer<Dtype>:: DataLayerSetUp(const vector<Blob<Dtype>*>& bottom
 	vector<vector<int> > skip_offsets;
 	for (int i = 0; i < num_segments; ++i) {
 		caffe::rng_t* frame_rng = static_cast<caffe::rng_t*>(frame_prefetch_rng_->generator());
-		int offset = (*frame_rng)() % (average_duration -  new_length + 1);
+		int offset;
+		if (average_duration >= new_length) {
+			offset = (*frame_rng)() % (average_duration -  new_length + 1);
+		}
+		else {
+			offset = 0;
+		}
 		offsets.push_back(offset + i * average_duration);
 		vector<int> tmp_off;
 		for (int j=0; j< new_length; ++j) {
-			if (rand_step == true)
-				offset = (*frame_rng)() % step;
-			else
-				offset = 0;
+			// if (rand_step == true)
+			// 	offset = (*frame_rng)() % step;
+			// else
+			offset = 0;
 			tmp_off.push_back(offset);
 		}
 		skip_offsets.push_back(tmp_off);
@@ -91,7 +97,7 @@ void Video4dDataLayer<Dtype>:: DataLayerSetUp(const vector<Blob<Dtype>*>& bottom
 	else
 		CHECK(ReadSegmentRGBToDatum_4D(lines_[lines_id_].first, lines_[lines_id_].second,
 										offsets, new_height, new_width, new_length, &datum, 
-										true, name_pattern_.c_str(), step, skip_offsets));
+										true, name_pattern_.c_str(), 1, skip_offsets)); // when setting up, step is restricted to 1
 	const int crop_size = this->layer_param_.transform_param().crop_size();
 	const int batch_size = this->layer_param_.video4d_data_param().batch_size();
 	if (crop_size > 0) {
@@ -131,7 +137,7 @@ void Video4dDataLayer<Dtype>::InternalThreadEntry() {
 	const int new_length = video4d_data_param.new_length();
 	const int num_segments = video4d_data_param.num_segments();
 	const int lines_size = lines_.size();
-	int step = video4d_data_param.step(); // adjust step according to the size of frame sequence
+	const int init_step = video4d_data_param.step(); // adjust step according to the size of frame sequence
 	const bool rand_step = video4d_data_param.rand_step();
 	const bool offset_share = video4d_data_param.offset_share();
 
@@ -142,20 +148,28 @@ void Video4dDataLayer<Dtype>::InternalThreadEntry() {
 		vector<vector<int> > skip_offsets;
 		double average_duration = lines_duration_[lines_id_] / num_segments;
 		caffe::rng_t* frame_rng = static_cast<caffe::rng_t*>(frame_prefetch_rng_->generator());
+		// set step dynamically
+		int step = init_step;
+		if (average_duration < (new_length - 1) * step + 1) {
+			step = (int) (average_duration / new_length);
+			if (step == 0)
+				step = 1;
+		}
+		CHECK(step >= 0);
+		// set offset shared between different segments.
 		int share_offset;
-		if (average_duration >= new_length * step)
-			share_offset = (*frame_rng)() % ( (int)average_duration - new_length * step + 1);
+		if (average_duration >= (new_length - 1) * step + 1)
+			share_offset = (*frame_rng)() % ( (int)average_duration - (new_length - 1) * step);
+		else
+			share_offset = 0;
+		// set offset per segment.
 		for (int i = 0; i < num_segments; ++ i) {
 			if (this->phase_ == TRAIN) {
-				if (average_duration >= new_length) {
-					if (!average_duration >= new_length * step) {
-						step = (int) (average_duration / new_length);
-						if (step == 0)
-							++ step;
-					}
+				if (average_duration >= (new_length - 1) * step + 1) {
+					// set offset
 					int offset;
-					if (!share_offset)
-						offset = (*frame_rng)() % ( (int)average_duration - new_length * step + 1);
+					if (!offset_share)
+						offset = (*frame_rng)() % ( (int)average_duration - (new_length - 1) * step);
 					else
 						offset = share_offset;
 					offsets.push_back( (int) (offset + i * average_duration));
@@ -168,8 +182,8 @@ void Video4dDataLayer<Dtype>::InternalThreadEntry() {
 						tmp_off.push_back(offset);
 					}
 					skip_offsets.push_back(tmp_off);
-				}
-				else {
+				} else {
+					CHECK_EQ(step, 1); // After above operations, step must be one here.
 					offsets.push_back((int) (i * average_duration));
 					vector<int> tmp_off;
 					for (int j = 0; j < new_length; j++) {
@@ -179,16 +193,16 @@ void Video4dDataLayer<Dtype>::InternalThreadEntry() {
 				}
 			} else {
 				if (average_duration >= new_length) {
-					if (!average_duration >= new_length * step) {
+					if (average_duration < (new_length - 1) * step + 1) {
 						step = (int) (average_duration / new_length);
-						if (step == 0)
-							++ step;
+						CHECK_GT(step, 0); // because average_duration >= new_length
 					}
-				    offsets.push_back(int((average_duration - new_length * step + 1) / 2 +
+				    offsets.push_back(int((average_duration - (new_length - 1) * step) / 2 +
 				    						i * average_duration));
-				}
-				else
+				} else {
+					step = 1;
 				    offsets.push_back((int) (i * average_duration));
+				}
 				vector<int> tmp_off;
 				for (int j = 0; j < new_length; j++)
 					tmp_off.push_back(0);

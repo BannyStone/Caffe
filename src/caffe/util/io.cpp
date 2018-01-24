@@ -523,9 +523,11 @@ bool ReadSegmentRGBToDatum_4D(const string& filename, const int label,
     int file_id = 1;
     for (int j = 0; j < length; ++ j) {
       cv::Mat cv_img;
+      LOG(INFO) << "offset: " << offset << "; file_id: " << file_id << "; skip_offset: " << skip_offset[j] << "; step: " << step;
       sprintf(tmp, name_pattern, int(offset + file_id + skip_offset[j]));
       string filename_t = filename + "/" + tmp;
       cv::Mat cv_img_origin = cv::imread(filename_t, cv_read_flag);
+      LOG(INFO) << "filename: " << filename_t;
       if (!cv_img_origin.data) {
         sprintf(tmp, name_pattern, int(offset + last_used));
         filename_t = filename + "/" + tmp;
