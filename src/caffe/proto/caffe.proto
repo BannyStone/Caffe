@@ -278,7 +278,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 166 (last added: video4d_data_param)
+// LayerParameter next available layer-specific ID: 167 (last added: correlation_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -370,6 +370,7 @@ message LayerParameter {
   optional BatchNormParameter batch_norm_param = 163;
   optional NDPParameter ndp_param = 164;
   optional Video4dDataParameter video4d_data_param = 165;
+  optional CorrelationParameter correlation_param = 166;
 }
 
 // Message that stores parameters used to apply transformation
@@ -547,6 +548,25 @@ message ConvolutionParameter {
   // implementation; for input blobs with num_axes != 2, this option is
   // ignored and the ND implementation will be used.)
   optional bool force_nd_im2col = 19 [default = false];
+}
+
+// Message that stores parameters used by CorrelationLayer
+message CorrelationParameter {
+  optional uint32 pad = 2 [default = 0]; // The padding size (equal in Y, X)
+  optional uint32 kernel_size = 3; // The kernel size (square)
+  optional uint32 max_displacement = 4; // The maximum displacement (square)
+  optional uint32 stride_1 = 5 [default = 1]; // The stride in blob 1 (equal in Y, X)
+  optional uint32 stride_2 = 6 [default = 1]; // The stride in blob 2 (equal in Y, X)
+  
+  // For Correlation1D:
+  optional int32 single_direction = 8 [default = 0]; // Correlate only to the left (-1) or right (1)
+  
+  optional bool do_abs = 7 [default = false]; // Use absolute value of result
+  enum CorrelationType {
+    MULTIPLY = 0;
+    SUBTRACT = 1;
+  }
+  optional CorrelationType correlation_type = 15 [default = MULTIPLY]; // Multiplicative is normal correlation
 }
 
 message DataParameter {

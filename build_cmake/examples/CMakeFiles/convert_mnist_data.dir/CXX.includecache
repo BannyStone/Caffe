@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/media/SSD/zhoulei/workspace/Caffes/caffe_nd/examples/mnist/convert_mnist_data.cpp
+/home/leizhou/Caffes/caffe_nd/examples/mnist/convert_mnist_data.cpp
 gflags/gflags.h
 -
 glog/logging.h
@@ -28,7 +28,7 @@ fstream
 string
 -
 caffe/proto/caffe.pb.h
-/media/SSD/zhoulei/workspace/Caffes/caffe_nd/examples/mnist/caffe/proto/caffe.pb.h
+/home/leizhou/Caffes/caffe_nd/examples/mnist/caffe/proto/caffe.pb.h
 
 include/caffe/proto/caffe.pb.h
 string

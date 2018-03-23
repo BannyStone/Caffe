@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/include/caffe/proto/caffe.pb.cc
+/home/leizhou/Caffes/caffe_nd/build_cmake/include/caffe/proto/caffe.pb.cc
 caffe.pb.h
-/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/include/caffe/proto/caffe.pb.h
+/home/leizhou/Caffes/caffe_nd/build_cmake/include/caffe/proto/caffe.pb.h
 algorithm
 -
 google/protobuf/stubs/common.h
@@ -28,7 +28,7 @@ google/protobuf/reflection_ops.h
 google/protobuf/wire_format.h
 -
 
-/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/include/caffe/proto/caffe.pb.h
+/home/leizhou/Caffes/caffe_nd/build_cmake/include/caffe/proto/caffe.pb.h
 string
 -
 google/protobuf/stubs/common.h

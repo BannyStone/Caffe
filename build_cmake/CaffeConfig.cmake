@@ -20,7 +20,7 @@
 # OpenCV dependency
 
 if(NOT OpenCV_FOUND)
-  set(Caffe_OpenCV_CONFIG_PATH "/usr/local/share/OpenCV")
+  set(Caffe_OpenCV_CONFIG_PATH "/usr/share/OpenCV")
   if(Caffe_OpenCV_CONFIG_PATH)
     get_filename_component(Caffe_OpenCV_CONFIG_PATH ${Caffe_OpenCV_CONFIG_PATH} ABSOLUTE)
 
@@ -37,7 +37,7 @@ endif()
 
 # Compute paths
 get_filename_component(Caffe_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(Caffe_INCLUDE_DIRS "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/src;/usr/include;/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/include;/usr/local/cuda/include;/usr/local/include/opencv;/usr/local/include;/usr/include/atlas;/media/SSD/zhoulei/workspace/Tools/openmpi/include;/media/SSD/zhoulei/workspace/Caffes/caffe_nd/include")
+set(Caffe_INCLUDE_DIRS "/home/leizhou/Caffes/caffe_nd/src;/usr/include;/home/leizhou/Caffes/caffe_nd/build_cmake/include;/usr/include/hdf5/serial;/usr/local/cuda/include;/usr/include/opencv;/usr/include/atlas;/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent;/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include;/usr/lib/openmpi/include;/usr/lib/openmpi/include/openmpi;/home/leizhou/Caffes/caffe_nd/include")
 
 
 

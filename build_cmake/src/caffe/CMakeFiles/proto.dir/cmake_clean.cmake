@@ -1,4 +1,4 @@
-FILE(REMOVE_RECURSE
+file(REMOVE_RECURSE
   "../../include/caffe/proto/caffe.pb.cc"
   "../../include/caffe/proto/caffe.pb.h"
   "../../include/caffe/proto/caffe_pb2.py"
@@ -8,6 +8,6 @@ FILE(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-FOREACH(lang CXX)
-  INCLUDE(CMakeFiles/proto.dir/cmake_clean_${lang}.cmake OPTIONAL)
-ENDFOREACH(lang)
+foreach(lang CXX)
+  include(CMakeFiles/proto.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

@@ -1,8 +1,8 @@
 /* Sources directory */
-#define SOURCE_FOLDER "/media/SSD/zhoulei/workspace/Caffes/caffe_nd"
+#define SOURCE_FOLDER "/home/leizhou/Caffes/caffe_nd"
 
 /* Binaries directory */
-#define BINARY_FOLDER "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake"
+#define BINARY_FOLDER "/home/leizhou/Caffes/caffe_nd/build_cmake"
 
 /* NVIDA Cuda */
 #define HAVE_CUDA

@@ -56,29 +56,30 @@ endif()
 
 # Set these up as variables to make reading the generated file easier
 set(CMAKE_COMMAND "/usr/bin/cmake") # path
-set(source_file "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/src/caffe/layers/sigmoid_layer.cu") # path
-set(NVCC_generated_dependency_file "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_sigmoid_layer.cu.o.NVCC-depend") # path
-set(cmake_dependency_file "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_sigmoid_layer.cu.o.depend") # path
-set(CUDA_make2cmake "/usr/share/cmake-2.8/Modules/FindCUDA/make2cmake.cmake") # path
-set(CUDA_parse_cubin "/usr/share/cmake-2.8/Modules/FindCUDA/parse_cubin.cmake") # path
+set(source_file "/home/leizhou/Caffes/caffe_nd/src/caffe/layers/sigmoid_layer.cu") # path
+set(NVCC_generated_dependency_file "/home/leizhou/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_sigmoid_layer.cu.o.NVCC-depend") # path
+set(cmake_dependency_file "/home/leizhou/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_sigmoid_layer.cu.o.depend") # path
+set(CUDA_make2cmake "/usr/share/cmake-3.5/Modules/FindCUDA/make2cmake.cmake") # path
+set(CUDA_parse_cubin "/usr/share/cmake-3.5/Modules/FindCUDA/parse_cubin.cmake") # path
 set(build_cubin OFF) # bool
-set(CUDA_HOST_COMPILER "/usr/bin/cc") # bool
+set(CUDA_HOST_COMPILER "/usr/bin/cc") # path
 # We won't actually use these variables for now, but we need to set this, in
 # order to force this file to be run again if it changes.
-set(generated_file_path "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/.") # path
-set(generated_file_internal "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/./cuda_compile_generated_sigmoid_layer.cu.o") # path
-set(generated_cubin_file_internal "/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/./cuda_compile_generated_sigmoid_layer.cu.o.cubin.txt") # path
+set(generated_file_path "/home/leizhou/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/.") # path
+set(generated_file_internal "/home/leizhou/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/./cuda_compile_generated_sigmoid_layer.cu.o") # path
+set(generated_cubin_file_internal "/home/leizhou/Caffes/caffe_nd/build_cmake/src/caffe/CMakeFiles/cuda_compile.dir/layers/./cuda_compile_generated_sigmoid_layer.cu.o.cubin.txt") # path
 
 set(CUDA_NVCC_EXECUTABLE "/usr/local/cuda/bin/nvcc") # path
-set(CUDA_NVCC_FLAGS -gencode;arch=compute_61,code=sm_61 "-DBOOST_NOINLINE=__attribute__((noinline))" ;-Xcudafe;--diag_suppress=cc_clobber_ignored;-Xcudafe;--diag_suppress=integer_sign_change;-Xcudafe;--diag_suppress=useless_using_declaration;-Xcudafe;--diag_suppress=set_but_not_used;-Xcompiler;-fPIC ;; ) # list
+set(CUDA_NVCC_FLAGS -gencode;arch=compute_61,code=sm_61;-Xcudafe;--diag_suppress=cc_clobber_ignored;-Xcudafe;--diag_suppress=integer_sign_change;-Xcudafe;--diag_suppress=useless_using_declaration;-Xcudafe;--diag_suppress=set_but_not_used;-Xcompiler;-fPIC ;; ) # list
 # Build specific configuration flags
 set(CUDA_NVCC_FLAGS_DEBUG  ; )
 set(CUDA_NVCC_FLAGS_RELEASE  ; )
 set(CUDA_NVCC_FLAGS_MINSIZEREL  ; )
 set(CUDA_NVCC_FLAGS_RELWITHDEBINFO  ; )
 set(nvcc_flags -m64;-DUSE_CUDNN;-DWITH_PYTHON_LAYER;-DUSE_MPI;-DGTEST_USE_OWN_TR1_TUPLE) # list
-set(CUDA_NVCC_INCLUDE_ARGS "-I/usr/local/cuda/include;-I/media/SSD/zhoulei/workspace/Caffes/caffe_nd/src;-I/usr/include;-I/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake/include;-I/usr/local/cuda/include;-I/usr/local/include/opencv;-I/usr/local/include;-I/usr/include/atlas;-I/usr/include/python2.7;-I/usr/include/x86_64-linux-gnu/python2.7;-I/usr/local/lib/python2.7/dist-packages/numpy/core/include;-I/media/SSD/zhoulei/workspace/Tools/openmpi/include;-I/media/SSD/zhoulei/workspace/Caffes/caffe_nd/include;-I/media/SSD/zhoulei/workspace/Caffes/caffe_nd/build_cmake") # list (needs to be in quotes to handle spaces properly).
+set(CUDA_NVCC_INCLUDE_ARGS "-I/usr/local/cuda/include;-I/home/leizhou/Caffes/caffe_nd/src;-I/usr/include;-I/home/leizhou/Caffes/caffe_nd/build_cmake/include;-I/usr/include/hdf5/serial;-I/usr/local/cuda/include;-I/usr/include/opencv;-I/usr/include/atlas;-I/usr/include/python2.7;-I/usr/local/lib/python2.7/dist-packages/numpy/core/include;-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent;-I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include;-I/usr/lib/openmpi/include;-I/usr/lib/openmpi/include/openmpi;-I/home/leizhou/Caffes/caffe_nd/include;-I/home/leizhou/Caffes/caffe_nd/build_cmake") # list (needs to be in quotes to handle spaces properly).
 set(format_flag "-c") # string
+set(cuda_language_flag ) # list
 
 if(build_cubin AND NOT generated_cubin_file)
   message(FATAL_ERROR "You must specify generated_cubin_file on the command line")
@@ -114,7 +115,7 @@ list(APPEND CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS_${build_configuration}})
 # Any -ccbin existing in CUDA_NVCC_FLAGS gets highest priority
 list( FIND CUDA_NVCC_FLAGS "-ccbin" ccbin_found0 )
 list( FIND CUDA_NVCC_FLAGS "--compiler-bindir" ccbin_found1 )
-if( ccbin_found0 LESS 0 AND ccbin_found1 LESS 0 )
+if( ccbin_found0 LESS 0 AND ccbin_found1 LESS 0 AND CUDA_HOST_COMPILER )
   if (CUDA_HOST_COMPILER STREQUAL "$(VCInstallDir)bin" AND DEFINED CCBIN)
     set(CCBIN -ccbin "${CCBIN}")
   else()
@@ -134,7 +135,7 @@ endif()
 # and other return variables are present after executing the process.
 macro(cuda_execute_process status command)
   set(_command ${command})
-  if(NOT _command STREQUAL "COMMAND")
+  if(NOT "x${_command}" STREQUAL "xCOMMAND")
     message(FATAL_ERROR "Malformed call to cuda_execute_process.  Missing COMMAND as second argument. (command = ${command})")
   endif()
   if(verbose)
@@ -246,6 +247,7 @@ cuda_execute_process(
   "Generating ${generated_file}"
   COMMAND "${CUDA_NVCC_EXECUTABLE}"
   "${source_file}"
+  ${cuda_language_flag}
   ${format_flag} -o "${generated_file}"
   ${CCBIN}
   ${nvcc_flags}
