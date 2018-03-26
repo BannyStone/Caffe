@@ -888,6 +888,9 @@ message PoolingParameter {
   // If global_pooling then it will pool over the size of the bottom by setting
   // the size of the kernel to the size of the input image
   optional bool global_pooling = 12 [default = false];
+  // If spatial_global_pooling then it will pool over the last 2 dimensions of the bottom by setting
+  // the size of the kernel to the size of the input image
+  optional bool spatial_global_pooling = 13 [default = false];
 }
 
 message PowerParameter {

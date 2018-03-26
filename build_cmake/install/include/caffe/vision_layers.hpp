@@ -514,6 +514,7 @@ class PoolingLayer : public Layer<Dtype> {
   std::vector<int> input_shape_;
   std::vector<int> pooled_shape_;
   bool global_pooling_;
+  bool spatial_global_pooling_;
   Blob<Dtype> rand_idx_;
   Blob<int> max_idx_;
 };

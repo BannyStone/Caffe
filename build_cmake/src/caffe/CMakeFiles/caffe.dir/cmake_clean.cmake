@@ -24,6 +24,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_cudnn_conv_layer.cu.o"
   "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_batch_reduction_layer.cu.o"
   "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_mvn_layer.cu.o"
+  "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_correlation_layer_bk.cu.o"
   "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_softmax_layer.cu.o"
   "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_bias_layer.cu.o"
   "CMakeFiles/cuda_compile.dir/layers/cuda_compile_generated_cudnn_relu_layer.cu.o"

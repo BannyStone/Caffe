@@ -19,6 +19,7 @@ void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   PoolingParameter pool_param = this->layer_param_.pooling_param();
 
   global_pooling_ = pool_param.global_pooling();
+  spatial_global_pooling_ = pool_param.spatial_global_pooling();
   num_spatial_axes_ = bottom[0]->num_axes() - 2;
   // Setup filter kernel dimensions (kernel_shape_).
   kernel_shape_ = std::vector<int>(num_spatial_axes_, 0);
@@ -28,7 +29,17 @@ void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       << "With Global_pooling: true Filter size cannot specified";
     for (int i = 0; i < num_spatial_axes_; ++i)
       kernel_shape_[i] = bottom[0]->shape(i + 2);
-  } else {
+  } else if (spatial_global_pooling_) {
+    CHECK_EQ(num_spatial_axes_, 3)
+          << "spatial_global_pooling can only be used for 3D pooling.";
+    CHECK(!((pool_param.kernel_size_size() > 0) ||
+      pool_param.has_kernel_h() || pool_param.has_kernel_w()))
+      << "With Global_pooling: true Filter size cannot specified";
+    kernel_shape_[0] = 1;
+    for (int i = 1; i < num_spatial_axes_; ++i)
+      kernel_shape_[i] = bottom[0]->shape(i + 2);
+  }
+  else {
     if (pool_param.has_kernel_h() || pool_param.has_kernel_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "kernel_h & kernel_w can only be used for 2D pooling.";
@@ -98,7 +109,7 @@ void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   }
   // remaining pooling sanity checks
   for (int i = 0; i < num_spatial_axes_; ++i) {
-    if (global_pooling_) {
+    if (global_pooling_ || spatial_global_pooling_) {
       CHECK(pad_[i] == 0 && stride_[i] == 1)
         << "With Global_pooling: true; only pad = 0 and stride = 1";
     }
@@ -122,6 +133,11 @@ void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   input_shape_ = bottom[0]->shape();
   if (global_pooling_) {
     for (int i = 0; i < num_spatial_axes_; ++i)
+      kernel_shape_[i] = input_shape_[i + 2];
+  }
+  if (global_pooling_) {
+    kernel_shape_[0] = 1;
+    for (int i = 1; i < num_spatial_axes_; ++i)
       kernel_shape_[i] = input_shape_[i + 2];
   }
   // setup pooled shape
