@@ -19,7 +19,7 @@ void SyncBNLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     this->blobs_.resize(4);
     vector<int> shape;
     shape.push_back(1);
-    shape.push_back(bottom[0]->channels());
+    shape.push_back(bottom[0]->shape(1));
     // slope
     this->blobs_[0].reset(new Blob<Dtype>(shape));
     shared_ptr<Filler<Dtype> > slope_filler(GetFiller<Dtype>(
@@ -49,20 +49,31 @@ void SyncBNLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   this->layer_param_.mutable_param(2)->set_decay_mult(Dtype(0));
   this->layer_param_.mutable_param(3)->set_lr_mult(Dtype(0));
   this->layer_param_.mutable_param(3)->set_decay_mult(Dtype(0));
+  LOG(INFO)<<"pos5";
 }
 
 template <typename Dtype>
 void SyncBNLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  num_ = bottom[0]->num();
-  channels_ = bottom[0]->channels();
-  height_ = bottom[0]->height();
-  width_ = bottom[0]->width();
+  num_ = bottom[0]->shape(0);
+  channels_ = bottom[0]->shape(1);
+
+  if (bottom[0]->num_axes() == 4) {
+    height_ = bottom[0]->shape(2);
+    width_ = bottom[0]->shape(3);
+  }
+
+  spatial_dim_ = bottom[0]->count()/(channels_*bottom[0]->shape(0));
 
   top[0]->ReshapeLike(*(bottom[0]));
 
-  mean_buffer_.Reshape(1, channels_, 1, 1);
-  var_buffer_.Reshape(1, channels_, 1, 1);
+  // mean_buffer_.Reshape(1, channels_, 1, 1);
+  // var_buffer_.Reshape(1, channels_, 1, 1);
+  vector<int> shape;
+  shape.push_back(1);
+  shape.push_back(channels_);
+  mean_buffer_.Reshape(shape);
+  var_buffer_.Reshape(shape);
 }
 
 template <typename Dtype>

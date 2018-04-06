@@ -48,6 +48,7 @@ endif()
 if(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/python/caffe" TYPE FILE FILES
     "/home/leizhou/Caffes/caffe_nd/python/caffe/detector.py"
+    "/home/leizhou/Caffes/caffe_nd/python/caffe/net_spec_bk.py"
     "/home/leizhou/Caffes/caffe_nd/python/caffe/draw.py"
     "/home/leizhou/Caffes/caffe_nd/python/caffe/pycaffe.py"
     "/home/leizhou/Caffes/caffe_nd/python/caffe/io.py"

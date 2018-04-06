@@ -68,6 +68,7 @@
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/convert_to_fully_conv.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/requirements.txt
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/detector.py
+/home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/net_spec_bk.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/draw.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/pycaffe.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/io.py
@@ -76,6 +77,8 @@
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/__init__.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/_caffe.so
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/imagenet/ilsvrc_2012_mean.npy
+/home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/proto/caffe_pb2.pyc
+/home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/proto/__init__.pyc
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/proto/caffe_pb2.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/proto/__init__.py
 /home/leizhou/Caffes/caffe_nd/build_cmake/install/python/caffe/test/test_python_layer.py

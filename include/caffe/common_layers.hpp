@@ -855,6 +855,7 @@ class SyncBNLayer : public Layer<Dtype> {
   int channels_;
   int height_;
   int width_;
+  int spatial_dim_;
 
   Blob<Dtype> mean_buffer_;
   Blob<Dtype> var_buffer_;
