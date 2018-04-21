@@ -25,12 +25,8 @@ template <typename Dtype>
 void CuDNNSigmoidLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   SigmoidLayer<Dtype>::Reshape(bottom, top);
-  const int N = bottom[0]->num();
-  const int K = bottom[0]->channels();
-  const int H = bottom[0]->height();
-  const int W = bottom[0]->width();
-  cudnn::setTensor4dDesc<Dtype>(&bottom_desc_, N, K, H, W);
-  cudnn::setTensor4dDesc<Dtype>(&top_desc_, N, K, H, W);
+  cudnn::setTensorNdDesc<Dtype>(&bottom_desc_, bottom[0]->shape());
+  cudnn::setTensorNdDesc<Dtype>(&top_desc_, bottom[0]->shape());
 }
 
 template <typename Dtype>
