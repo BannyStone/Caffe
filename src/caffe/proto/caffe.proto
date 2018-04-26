@@ -278,7 +278,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 168 (last added: corrv1_param)
+// LayerParameter next available layer-specific ID: 169 (last added: interp_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -372,6 +372,7 @@ message LayerParameter {
   optional Video4dDataParameter video4d_data_param = 165;
   optional CorrelationParameter correlation_param = 166;
   optional Corrv1Parameter corrv1_param = 167;
+  optional InterpParameter interp_param = 168;
 }
 
 // Message that stores parameters used to apply transformation
@@ -590,6 +591,15 @@ message Corrv1Parameter {
     SUBTRACT = 1;
   }
   optional CorrelationType correlation_type = 15 [default = MULTIPLY]; // Multiplicative is normal correlation
+}
+
+message InterpParameter {
+  optional int32 height = 1 [default = 0]; // Height of output
+  optional int32 width = 2 [default = 0]; // Width of output
+  optional int32 zoom_factor = 3 [default = 1]; // zoom factor
+  optional int32 shrink_factor = 4 [default = 1]; // shrink factor
+  optional int32 pad_beg = 5 [default = 0]; // padding at begin of input
+  optional int32 pad_end = 6 [default = 0]; // padding at end of input
 }
 
 message DataParameter {
