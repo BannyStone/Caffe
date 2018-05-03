@@ -25,8 +25,8 @@ void BNLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         batch_statistic_.mutable_gpu_data());
   } else {
     // Compute the mean by averaging over spatial and batch dimensions.
-    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
-        Dtype(1) / (height_ * width_), const_bottom_data,
+    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
+        Dtype(1) / spatial_dim_, const_bottom_data,
         spatial_sum_multiplier_.gpu_data(), Dtype(0),
         spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemv<Dtype>(CblasTrans, num_, channels_,
@@ -45,7 +45,7 @@ void BNLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.gpu_data(), batch_statistic_.gpu_data(),
       Dtype(0), spatial_statistic_.mutable_gpu_data());
   caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(-1),
+      spatial_dim_, 1, Dtype(-1),
       spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
       Dtype(0), broadcast_buffer_.mutable_gpu_data());
   // Subtract
@@ -60,8 +60,8 @@ void BNLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   } else {
     caffe_gpu_powx(broadcast_buffer_.count(), const_top_data, Dtype(2),
         broadcast_buffer_.mutable_gpu_data());
-    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
-        Dtype(1) / (height_ * width_), broadcast_buffer_.gpu_data(),
+    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
+        Dtype(1) / (spatial_dim_), broadcast_buffer_.gpu_data(),
         spatial_sum_multiplier_.gpu_data(), Dtype(0),
         spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemv<Dtype>(CblasTrans, num_, channels_, Dtype(1) / num_,
@@ -85,7 +85,7 @@ void BNLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.gpu_data(), batch_statistic_.gpu_data(),
       Dtype(0), spatial_statistic_.mutable_gpu_data());
   caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(1),
+      spatial_dim_, 1, Dtype(1),
       spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
       Dtype(0), broadcast_buffer_.mutable_gpu_data());
   // Multiply with the inverse std
@@ -105,7 +105,7 @@ void BNLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.gpu_data(), scale_data,
       Dtype(0), spatial_statistic_.mutable_gpu_data());
   caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(1),
+      spatial_dim_, 1, Dtype(1),
       spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
       Dtype(0), broadcast_buffer_.mutable_gpu_data());
   caffe_gpu_mul(broadcast_buffer_.count(), const_top_data,
@@ -116,7 +116,7 @@ void BNLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.gpu_data(), shift_data,
       Dtype(0), spatial_statistic_.mutable_gpu_data());
   caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(1),
+      spatial_dim_, 1, Dtype(1),
       spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
       Dtype(0), broadcast_buffer_.mutable_gpu_data());
   caffe_gpu_add(broadcast_buffer_.count(), const_top_data,
@@ -145,7 +145,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
           Dtype(1), batch_sum_multiplier_.gpu_data(), batch_statistic_.gpu_data(),
           Dtype(0), spatial_statistic_.mutable_gpu_data());
       caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-          height_ * width_, 1, Dtype(1),
+          spatial_dim_, 1, Dtype(1),
           spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
           Dtype(0), broadcast_buffer_.mutable_gpu_data());
       // Elementwise multiply top grad with (slope / std)
@@ -161,7 +161,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     Dtype* scale_diff = this->blobs_[0]->mutable_gpu_diff();
     caffe_gpu_mul(broadcast_buffer_.count(), x_norm_.gpu_data(), const_top_diff,
         broadcast_buffer_.mutable_gpu_data());
-    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), broadcast_buffer_.gpu_data(),
         spatial_sum_multiplier_.gpu_data(), Dtype(0),
         spatial_statistic_.mutable_gpu_data());
@@ -174,7 +174,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   if (this->param_propagate_down_[1]) {
     const Dtype* const_top_diff = top[0]->gpu_diff();
     Dtype* shift_diff = this->blobs_[1]->mutable_gpu_diff();
-    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), const_top_diff, spatial_sum_multiplier_.gpu_data(),
         Dtype(0), spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemv<Dtype>(CblasTrans, num_, channels_, Dtype(1),
@@ -192,7 +192,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.gpu_data(), scale_data,
         Dtype(0), spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1), spatial_statistic_.gpu_data(),
+        spatial_dim_, 1, Dtype(1), spatial_statistic_.gpu_data(),
         spatial_sum_multiplier_.gpu_data(), Dtype(0),
         broadcast_buffer_.mutable_gpu_data());
     caffe_gpu_mul(broadcast_buffer_.count(), const_top_diff,
@@ -201,7 +201,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     // sum of x_hat * (dl / dx_hat)
     caffe_gpu_mul(broadcast_buffer_.count(), x_norm_.gpu_data(),
         broadcast_buffer_.gpu_data(), bottom_diff);
-    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), const_bottom_diff, spatial_sum_multiplier_.gpu_data(),
         Dtype(0), spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemv<Dtype>(CblasTrans, num_, channels_, Dtype(1),
@@ -213,14 +213,14 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.gpu_data(), batch_statistic_.gpu_data(),
         Dtype(0), spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1),
+        spatial_dim_, 1, Dtype(1),
         spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
         Dtype(0), bottom_diff);
     caffe_gpu_mul(broadcast_buffer_.count(), x_norm_.gpu_data(),
         const_bottom_diff, bottom_diff);
 
     // Subtract the average of x_hat times the sum
-    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_gpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), broadcast_buffer_.gpu_data(),
         spatial_sum_multiplier_.gpu_data(), Dtype(0),
         spatial_statistic_.mutable_gpu_data());
@@ -231,11 +231,11 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.gpu_data(), batch_statistic_.gpu_data(),
         Dtype(0), spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1),
+        spatial_dim_, 1, Dtype(1),
         spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
         Dtype(1), bottom_diff);
     caffe_gpu_axpby(broadcast_buffer_.count(), Dtype(1),
-        broadcast_buffer_.gpu_data(), Dtype(-1) / (num_ * height_ * width_),
+        broadcast_buffer_.gpu_data(), Dtype(-1) / (num_ * spatial_dim_),
         bottom_diff);
 
     // Multiply with the inverse std
@@ -243,7 +243,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.gpu_data(), x_inv_std_.gpu_data(),
         Dtype(0), spatial_statistic_.mutable_gpu_data());
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1),
+        spatial_dim_, 1, Dtype(1),
         spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
         Dtype(0), broadcast_buffer_.mutable_gpu_data());
     caffe_gpu_mul(broadcast_buffer_.count(), const_bottom_diff,

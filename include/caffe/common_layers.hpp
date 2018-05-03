@@ -769,8 +769,12 @@ class BNLayer : public Layer<Dtype> {
 
   int num_;
   int channels_;
+  int length_;
   int height_;
   int width_;
+  int spatial_dim_;
+
+  int spatial_start_axis_;
 
   Blob<Dtype> broadcast_buffer_;
   Blob<Dtype> spatial_statistic_;

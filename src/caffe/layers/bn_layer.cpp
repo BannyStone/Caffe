@@ -67,24 +67,34 @@ void BNLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 void BNLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  num_ = bottom[0]->num();
-  channels_ = bottom[0]->channels();
-  height_ = bottom[0]->height();
-  width_ = bottom[0]->width();
+  num_ = bottom[0]->shape(0);
+  channels_ = bottom[0]->shape(1);
+  if (bottom[0]->num_axes() == 5) {
+    length_ = bottom[0]->shape(2);
+    spatial_start_axis_ = 3;
+  } else if (bottom[0]->num_axes() == 4) {
+    length_ = 1;
+    spatial_start_axis_ = 2;
+  } else {
+    NOT_IMPLEMENTED;
+  }
+  height_ = bottom[0]->shape(spatial_start_axis_);
+  width_ = bottom[0]->shape(spatial_start_axis_ + 1);
+  spatial_dim_ = length_ * height_ * width_;
 
   top[0]->ReshapeLike(*(bottom[0]));
 
   broadcast_buffer_.ReshapeLike(*(bottom[0]));
-  spatial_statistic_.Reshape(num_, channels_, 1, 1);
-  batch_statistic_.Reshape(1, channels_, 1, 1);
+  spatial_statistic_.Reshape(num_, channels_);
+  batch_statistic_.Reshape(channels_);
 
   x_norm_.ReshapeLike(*(bottom[0]));
   x_inv_std_.ReshapeLike(batch_statistic_);
 
-  spatial_sum_multiplier_.Reshape(1, 1, height_, width_);
+  spatial_sum_multiplier_.Reshape(spatial_dim_);
   caffe_set(spatial_sum_multiplier_.count(), Dtype(1),
       spatial_sum_multiplier_.mutable_cpu_data());
-  batch_sum_multiplier_.Reshape(num_, 1, 1, 1);
+  batch_sum_multiplier_.Reshape(num_);
   caffe_set(batch_sum_multiplier_.count(), Dtype(1),
       batch_sum_multiplier_.mutable_cpu_data());
 }
@@ -106,8 +116,8 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         batch_statistic_.mutable_cpu_data());
   } else {
     // Compute the mean by averaging over spatial and batch dimensions.
-    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
-        Dtype(1) / (height_ * width_), const_bottom_data,
+    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
+        Dtype(1) / (spatial_dim_), const_bottom_data,
         spatial_sum_multiplier_.cpu_data(), Dtype(0),
         spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemv<Dtype>(CblasTrans, num_, channels_,
@@ -126,7 +136,7 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.cpu_data(), batch_statistic_.cpu_data(),
       Dtype(0), spatial_statistic_.mutable_cpu_data());
   caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(-1),
+      spatial_dim_, 1, Dtype(-1),
       spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
       Dtype(0), broadcast_buffer_.mutable_cpu_data());
   // Subtract
@@ -142,8 +152,8 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     // calculate batch variance
     caffe_powx(broadcast_buffer_.count(), const_top_data, Dtype(2),
         broadcast_buffer_.mutable_cpu_data());
-    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
-        Dtype(1) / (height_ * width_), broadcast_buffer_.cpu_data(),
+    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
+        Dtype(1) / spatial_dim_, broadcast_buffer_.cpu_data(),
         spatial_sum_multiplier_.cpu_data(), Dtype(0),
         spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemv<Dtype>(CblasTrans, num_, channels_, Dtype(1) / num_,
@@ -168,7 +178,7 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         Dtype(1), batch_sum_multiplier_.cpu_data(), batch_statistic_.cpu_data(),
         Dtype(0), spatial_statistic_.mutable_cpu_data());
   caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(1),
+      spatial_dim_, 1, Dtype(1),
       spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
       Dtype(0), broadcast_buffer_.mutable_cpu_data());
   // Multiply with the inverse std
@@ -188,7 +198,7 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.cpu_data(), scale_data,
       Dtype(0), spatial_statistic_.mutable_cpu_data());
   caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(1),
+      spatial_dim_, 1, Dtype(1),
       spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
       Dtype(0), broadcast_buffer_.mutable_cpu_data());
   caffe_mul(broadcast_buffer_.count(), const_top_data,
@@ -199,7 +209,7 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       Dtype(1), batch_sum_multiplier_.cpu_data(), shift_data,
       Dtype(0), spatial_statistic_.mutable_cpu_data());
   caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-      height_ * width_, 1, Dtype(1),
+      spatial_dim_, 1, Dtype(1),
       spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
       Dtype(0), broadcast_buffer_.mutable_cpu_data());
   caffe_add(broadcast_buffer_.count(), const_top_data,
@@ -228,7 +238,7 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           Dtype(1), batch_sum_multiplier_.cpu_data(), batch_statistic_.cpu_data(),
           Dtype(0), spatial_statistic_.mutable_cpu_data());
       caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-          height_ * width_, 1, Dtype(1),
+          spatial_dim_, 1, Dtype(1),
           spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
           Dtype(0), broadcast_buffer_.mutable_cpu_data());
       // Elementwise multiply top grad with (slope / std)
@@ -244,7 +254,7 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     Dtype* scale_diff = this->blobs_[0]->mutable_cpu_diff();
     caffe_mul(broadcast_buffer_.count(), x_norm_.cpu_data(), const_top_diff,
         broadcast_buffer_.mutable_cpu_data());
-    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), broadcast_buffer_.cpu_data(),
         spatial_sum_multiplier_.cpu_data(), Dtype(0),
         spatial_statistic_.mutable_cpu_data());
@@ -257,7 +267,7 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   if (this->param_propagate_down_[1]) {
     const Dtype* const_top_diff = top[0]->cpu_diff();
     Dtype* shift_diff = this->blobs_[1]->mutable_cpu_diff();
-    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), const_top_diff, spatial_sum_multiplier_.cpu_data(),
         Dtype(0), spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemv<Dtype>(CblasTrans, num_, channels_, Dtype(1),
@@ -276,7 +286,7 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.cpu_data(), scale_data,
         Dtype(0), spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1), spatial_statistic_.cpu_data(),
+        spatial_dim_, 1, Dtype(1), spatial_statistic_.cpu_data(),
         spatial_sum_multiplier_.cpu_data(), Dtype(0),
         broadcast_buffer_.mutable_cpu_data());
     caffe_mul(broadcast_buffer_.count(), const_top_diff,
@@ -285,7 +295,7 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     // sum of x_hat * (dl / dx_hat)
     caffe_mul(broadcast_buffer_.count(), x_norm_.cpu_data(),
         broadcast_buffer_.cpu_data(), bottom_diff);
-    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), const_bottom_diff, spatial_sum_multiplier_.cpu_data(),
         Dtype(0), spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemv<Dtype>(CblasTrans, num_, channels_, Dtype(1),
@@ -297,14 +307,14 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.cpu_data(), batch_statistic_.cpu_data(),
         Dtype(0), spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1),
+        spatial_dim_, 1, Dtype(1),
         spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
         Dtype(0), bottom_diff);
     caffe_mul(broadcast_buffer_.count(), x_norm_.cpu_data(),
         const_bottom_diff, bottom_diff);
 
     // Subtract the average of x_hat times the sum
-    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, height_ * width_,
+    caffe_cpu_gemv<Dtype>(CblasNoTrans, num_ * channels_, spatial_dim_,
         Dtype(1), broadcast_buffer_.cpu_data(),
         spatial_sum_multiplier_.cpu_data(), Dtype(0),
         spatial_statistic_.mutable_cpu_data());
@@ -315,11 +325,11 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.cpu_data(), batch_statistic_.cpu_data(),
         Dtype(0), spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1),
+        spatial_dim_, 1, Dtype(1),
         spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
         Dtype(1), bottom_diff);
     caffe_cpu_axpby(broadcast_buffer_.count(), Dtype(1),
-        broadcast_buffer_.cpu_data(), Dtype(-1) / (num_ * height_ * width_),
+        broadcast_buffer_.cpu_data(), Dtype(-1) / (num_ * spatial_dim_),
         bottom_diff);
 
     // Multiply with the inverse std
@@ -327,7 +337,7 @@ void BNLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
         Dtype(1), batch_sum_multiplier_.cpu_data(), x_inv_std_.cpu_data(),
         Dtype(0), spatial_statistic_.mutable_cpu_data());
     caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_ * channels_,
-        height_ * width_, 1, Dtype(1),
+        spatial_dim_, 1, Dtype(1),
         spatial_statistic_.cpu_data(), spatial_sum_multiplier_.cpu_data(),
         Dtype(0), broadcast_buffer_.mutable_cpu_data());
     caffe_mul(broadcast_buffer_.count(), const_bottom_diff,
