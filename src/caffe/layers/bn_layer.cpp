@@ -85,16 +85,16 @@ void BNLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   top[0]->ReshapeLike(*(bottom[0]));
 
   broadcast_buffer_.ReshapeLike(*(bottom[0]));
-  spatial_statistic_.Reshape(num_, channels_);
-  batch_statistic_.Reshape(channels_);
+  spatial_statistic_.Reshape(num_, channels_, 1, 1);
+  batch_statistic_.Reshape(1, channels_, 1, 1);
 
   x_norm_.ReshapeLike(*(bottom[0]));
   x_inv_std_.ReshapeLike(batch_statistic_);
 
-  spatial_sum_multiplier_.Reshape(spatial_dim_);
+  spatial_sum_multiplier_.Reshape(1, 1, 1, spatial_dim_);
   caffe_set(spatial_sum_multiplier_.count(), Dtype(1),
       spatial_sum_multiplier_.mutable_cpu_data());
-  batch_sum_multiplier_.Reshape(num_);
+  batch_sum_multiplier_.Reshape(num_, 1, 1, 1);
   caffe_set(batch_sum_multiplier_.count(), Dtype(1),
       batch_sum_multiplier_.mutable_cpu_data());
 }
