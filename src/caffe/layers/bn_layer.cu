@@ -140,6 +140,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
       // Multiple slope with inverse std
       caffe_gpu_mul(batch_statistic_.count(), this->blobs_[0]->gpu_data(),
           batch_statistic_.gpu_data(), batch_statistic_.mutable_gpu_data());
+
       // Broadcast
       caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_, channels_, 1,
           Dtype(1), batch_sum_multiplier_.gpu_data(), batch_statistic_.gpu_data(),
@@ -148,6 +149,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
           spatial_dim_, 1, Dtype(1),
           spatial_statistic_.gpu_data(), spatial_sum_multiplier_.gpu_data(),
           Dtype(0), broadcast_buffer_.mutable_gpu_data());
+
       // Elementwise multiply top grad with (slope / std)
       caffe_gpu_mul(broadcast_buffer_.count(), const_top_diff,
           broadcast_buffer_.gpu_data(), bottom_diff);
@@ -188,6 +190,7 @@ void BNLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const Dtype* const_bottom_diff = bottom[0]->gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     const Dtype* scale_data = this->blobs_[0]->gpu_data();
+
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, num_, channels_, 1,
         Dtype(1), batch_sum_multiplier_.gpu_data(), scale_data,
         Dtype(0), spatial_statistic_.mutable_gpu_data());
