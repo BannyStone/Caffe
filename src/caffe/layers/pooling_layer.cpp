@@ -135,7 +135,7 @@ void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     for (int i = 0; i < num_spatial_axes_; ++i)
       kernel_shape_[i] = input_shape_[i + 2];
   }
-  if (global_pooling_) {
+  if (spatial_global_pooling_) {
     kernel_shape_[0] = 1;
     for (int i = 1; i < num_spatial_axes_; ++i)
       kernel_shape_[i] = input_shape_[i + 2];
